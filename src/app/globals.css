@@ -1,0 +1,82 @@
+@import "tailwindcss";
+
+/* ---------------------------------------------------------------
+   Design tokens — the palette from the original design, exposed to
+   Tailwind so utilities like `text-ink-soft` or `border-line` work.
+   --------------------------------------------------------------- */
+@theme {
+  --color-bg: #0a0a0b;
+  --color-raised: #17161a;
+  --color-ink: #f5f3ef;
+  --color-ink-soft: #b9b5af;
+  --color-ink-faint: #757279;
+  --color-line: #2b2930;
+  --color-accent: #e2929e;
+  --color-accent-soft: #2c1b20;
+  --color-accent-ink: #f6d4d9;
+  --color-steel: #8fb0cc;
+  --color-steel-soft: #1b242e;
+
+  --shadow-card: 0 1px 2px rgb(0 0 0 / 0.4), 0 8px 28px rgb(0 0 0 / 0.5);
+}
+
+/* next/font injects these variables on <html>; `inline` lets Tailwind read
+   them at build time so `font-serif` / `font-sans` / `font-mono` resolve. */
+@theme inline {
+  --font-serif: var(--font-fraunces), Georgia, "Times New Roman", serif;
+  --font-sans: var(--font-public-sans), -apple-system, "Segoe UI", sans-serif;
+  --font-mono: var(--font-plex-mono), ui-monospace, "SFMono-Regular", monospace;
+}
+
+@layer base {
+  html {
+    scroll-behavior: smooth;
+    color-scheme: dark;
+  }
+
+  body {
+    background-color: var(--color-bg);
+    color: var(--color-ink);
+    font-family: var(--font-sans);
+    font-size: 17px;
+    line-height: 1.65;
+    -webkit-font-smoothing: antialiased;
+    text-rendering: optimizeLegibility;
+  }
+
+  /* Sticky nav is ~57px tall; keep anchored headings clear of it. */
+  :target {
+    scroll-margin-top: 5rem;
+  }
+
+  ::selection {
+    background-color: var(--color-accent-soft);
+    color: var(--color-accent-ink);
+  }
+
+  :focus-visible {
+    outline: 2px solid var(--color-steel);
+    outline-offset: 3px;
+    border-radius: 2px;
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    html {
+      scroll-behavior: auto;
+    }
+    *,
+    *::before,
+    *::after {
+      animation-duration: 0.001ms !important;
+      animation-iteration-count: 1 !important;
+      transition-duration: 0.001ms !important;
+    }
+  }
+}
+
+@utility label-mono {
+  font-family: var(--font-mono);
+  font-size: 0.72rem;
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+}
