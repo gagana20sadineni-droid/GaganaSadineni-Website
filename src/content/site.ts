@@ -32,27 +32,22 @@ const FALLBACK_URL = "https://gaganasadineni.com";
  * `metadataBase` runs `new URL()` on this at build time, so a typo in the
  * environment variable (a missing protocol, a stray space, a trailing slash)
  * would fail the whole production build. Normalise what we can and fall back
- * rather than crash. Vercel injects VERCEL_PROJECT_PRODUCTION_URL, which lets
- * the site work on its *.vercel.app address before a custom domain is added.
+ * rather than crash.
+ *
+ * Deliberately does NOT consult Vercel's VERCEL_PROJECT_PRODUCTION_URL: that
+ * resolves to the *.vercel.app address, which would publish the wrong canonical
+ * URL and sitemap once a custom domain is attached.
  */
 function resolveSiteUrl(): string {
-  const candidates = [
-    process.env.NEXT_PUBLIC_SITE_URL,
-    process.env.VERCEL_PROJECT_PRODUCTION_URL,
-  ];
+  const raw = process.env.NEXT_PUBLIC_SITE_URL?.trim();
+  if (!raw) return FALLBACK_URL;
 
-  for (const candidate of candidates) {
-    const raw = candidate?.trim();
-    if (!raw) continue;
-    const withProtocol = /^https?:\/\//i.test(raw) ? raw : `https://${raw}`;
-    try {
-      return new URL(withProtocol).origin;
-    } catch {
-      // Malformed value — try the next candidate.
-    }
+  const withProtocol = /^https?:\/\//i.test(raw) ? raw : `https://${raw}`;
+  try {
+    return new URL(withProtocol).origin;
+  } catch {
+    return FALLBACK_URL;
   }
-
-  return FALLBACK_URL;
 }
 
 export const site = {
