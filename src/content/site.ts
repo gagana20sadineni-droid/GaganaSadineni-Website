@@ -24,6 +24,37 @@ export type Interest = {
   value: string;
 };
 
+const FALLBACK_URL = "https://gaganasadineni.com";
+
+/**
+ * Resolve the canonical site URL without ever throwing.
+ *
+ * `metadataBase` runs `new URL()` on this at build time, so a typo in the
+ * environment variable (a missing protocol, a stray space, a trailing slash)
+ * would fail the whole production build. Normalise what we can and fall back
+ * rather than crash. Vercel injects VERCEL_PROJECT_PRODUCTION_URL, which lets
+ * the site work on its *.vercel.app address before a custom domain is added.
+ */
+function resolveSiteUrl(): string {
+  const candidates = [
+    process.env.NEXT_PUBLIC_SITE_URL,
+    process.env.VERCEL_PROJECT_PRODUCTION_URL,
+  ];
+
+  for (const candidate of candidates) {
+    const raw = candidate?.trim();
+    if (!raw) continue;
+    const withProtocol = /^https?:\/\//i.test(raw) ? raw : `https://${raw}`;
+    try {
+      return new URL(withProtocol).origin;
+    } catch {
+      // Malformed value — try the next candidate.
+    }
+  }
+
+  return FALLBACK_URL;
+}
+
 export const site = {
   name: "Gagana Sadineni",
   initials: "GS",
@@ -31,7 +62,7 @@ export const site = {
   lede: "10th grade student in Pflugerville, Texas, building a portfolio of research, writing, and creative work.",
   description:
     "Profile and research of Gagana Sadineni, 10th grade student in Pflugerville, Texas.",
-  url: process.env.NEXT_PUBLIC_SITE_URL ?? "https://gaganasadineni.com",
+  url: resolveSiteUrl(),
   meta: ["Grade 10 · Age 15", "Pflugerville, TX", "Drawing & Viola"],
   lastUpdated: "August 2026",
 } as const;
